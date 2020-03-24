@@ -1,0 +1,102 @@
+/*
+*Compilador SQL (Simulador) - Ciencias 3 - Universidad Distrital Francisco Jose de Caldas
+*Juan David Neisa - Cod: 20161020083
+*Juan Camilo Rojas - Cod: 20162020427
+*/
+
+
+package Analizador;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal Comillas, Comilla_s, T_dato, CREATE, USE, Reservada, Identificador, TIPO_KEY, 
+KEY, Op_logico, Op_relacional, Op_booleano, Parentesis_a, Parentesis_c,
+Llave_a, Llave_c, Corchete_a, Corchete_c, P_coma, Coma, Numero, ERROR, Asterisco, 
+INSERT, INTO, VALUES, SELECT, FROM, WHERE, Igual, DELETE, NOT, NULL;
+
+non terminal INICIO, SENTENCIA, DATOS_TABLA, CREAR, INSERTAR, VALORES, S_VALORES, SELECCIONAR, IDENTIFICADORES, ELIMINAR;
+
+start with INICIO;
+
+INICIO ::= 
+    CREAR |
+    INSERTAR |
+    SELECCIONAR |
+    ELIMINAR
+;
+
+CREAR ::=
+    CREATE Reservada Identificador P_coma |
+    CREATE Reservada Identificador P_coma INICIO |
+    USE Identificador P_coma |
+    USE Identificador P_coma INICIO |
+    CREATE Reservada Identificador Parentesis_a DATOS_TABLA Parentesis_c P_coma |
+    CREATE Reservada Identificador Parentesis_a DATOS_TABLA Parentesis_c P_coma INICIO
+;
+
+DATOS_TABLA ::=
+    SENTENCIA |
+    SENTENCIA Coma DATOS_TABLA
+;
+
+SENTENCIA ::=
+    Identificador T_dato TIPO_KEY KEY |
+    Identificador T_dato NOT NULL TIPO_KEY KEY |
+    Identificador T_dato NOT NULL |
+    Identificador T_dato |
+    Identificador T_dato NULL |
+    Identificador T_dato Parentesis_a Numero Parentesis_c NOT NULL |
+    Identificador T_dato Parentesis_a Numero Parentesis_c NULL |
+    Identificador T_dato Parentesis_a Numero Parentesis_c |
+    TIPO_KEY KEY Parentesis_a Identificador Parentesis_c
+;
+
+INSERTAR ::=
+    INSERT INTO Identificador VALUES Parentesis_a VALORES Parentesis_c P_coma |
+    INSERT INTO Identificador VALUES Parentesis_a VALORES Parentesis_c P_coma INICIO
+;
+
+VALORES ::=
+    S_VALORES |
+    S_VALORES Coma VALORES
+;
+
+S_VALORES ::=
+    Numero |
+    Comilla_s Identificador Comilla_s |
+    Op_booleano 
+;
+
+SELECCIONAR ::=
+    SELECT IDENTIFICADORES FROM Identificador WHERE Identificador Igual Numero P_coma |
+    SELECT IDENTIFICADORES FROM Identificador WHERE Identificador Igual Numero P_coma INICIO |
+    SELECT IDENTIFICADORES FROM Identificador WHERE Identificador Igual Comilla_s Identificador Comilla_s P_coma |
+    SELECT IDENTIFICADORES FROM Identificador WHERE Identificador Igual Comilla_s Identificador Comilla_s P_coma INICIO |
+    SELECT IDENTIFICADORES FROM Identificador P_coma|
+    SELECT IDENTIFICADORES FROM Identificador P_coma INICIO
+;
+
+IDENTIFICADORES ::=
+    Identificador |
+    Identificador Coma IDENTIFICADORES
+;
+
+ELIMINAR ::=
+    DELETE FROM Identificador WHERE Identificador Igual Numero P_coma |
+    DELETE FROM Identificador WHERE Identificador Igual Numero P_coma INICIO|
+    DELETE FROM Identificador WHERE Identificador Igual Comilla_s Identificador Comilla_s P_coma|
+    DELETE FROM Identificador WHERE Identificador Igual Comilla_s Identificador Comilla_s P_coma INICIO
+;
